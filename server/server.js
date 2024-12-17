@@ -20,7 +20,7 @@ app.use('/auth', authRoutes);
 app.use('/', verifyToken, userRoutes);
 
 const PORT = process.env.PORT || 3000;
-
+7688;
 app.listen(PORT, (error) => {
   if (error) {
     console.log(`Server failed to start on port${PORT}: `, error);

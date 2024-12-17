@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
     },
     role: { type: String, default: 'user' },
     refreshToken: { type: String },
-    isBlocked: { type: String, default: 'Unblocked' },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
