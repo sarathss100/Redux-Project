@@ -15,7 +15,12 @@ export const registerUser = async function (req, res) {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({
+      message: errors
+        .array()
+        .map((error) => error.msg)
+        .join(', '),
+    });
   }
 
   try {
@@ -51,12 +56,14 @@ export const registerUser = async function (req, res) {
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: `Strict`,
       });
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: `Strict`,
       });
-      res.status(201).json({ accessToken, refreshToken });
+      res.status(201).json({ user });
     }
   } catch (error) {
     res
@@ -87,10 +94,12 @@ export const loginUser = async function (req, res) {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: `Strict`,
     });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: `Strict`,
     });
     res.status(201).json({ accessToken, refreshToken });
   } catch (error) {
@@ -122,6 +131,7 @@ export const refreshAccessToken = async function (req, res) {
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: `Strict`,
     });
 
     res.status(200).json({ accessToken: newAccessToken });

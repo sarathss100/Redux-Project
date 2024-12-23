@@ -7,7 +7,9 @@ const validateUser = [
     .notEmpty()
     .withMessage('Username is required')
     .isLength({ min: 3, max: 20 })
-    .withMessage('Username must be between 3 and 20 characters'),
+    .withMessage('Username must be between 3 and 20 characters')
+    .matches(/^[A-Za-z0-9]+$/)
+    .withMessage('Username must contain letters or numbers'),
 
   // Validate email: check if it's a valid email
   body('email')

@@ -7,7 +7,7 @@ dotenv.config();
 export const profilePage = async function (req, res) {
   const userId = req.user.id;
   const user = await User.findOne({ _id: userId });
-  res.status(201).json(user);
+  res.status(200).json(user);
 };
 
 export const uploadProfileImage = async function (req, res) {
