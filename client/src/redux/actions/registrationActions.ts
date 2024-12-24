@@ -13,10 +13,10 @@ export const registerUser = function (username: string, email: string, password:
                 password
             }, { withCredentials: true });
 
-            dispatch(registrationSuccess(response.data.user));
-            dispatch(loginSuccess(response.data.user));
-        } catch (error: any) {
-            dispatch(registrationFailure(error.response.data.message || `Something went wrong!`));
+            dispatch(registrationSuccess({ id: response.data.user.id, role: response.data.user.role }));
+            dispatch(loginSuccess({id: response.data.user.id, role: response.data.user.role }));
+        } catch (error) {
+            dispatch(registrationFailure(`Something went wrong!`));
         }
     }
 }

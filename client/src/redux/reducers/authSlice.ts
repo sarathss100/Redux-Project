@@ -1,8 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
+interface User {
+    id: string,
+    role: string
+}
 interface AuthState {
-    user: any | null;
-    loading: Boolean;
+    user: User | null;
+    loading: boolean;
     error: string | null;
 }
 
@@ -16,18 +20,31 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        loginSuccess: (state, action: PayloadAction<any>) => {
+        loginRequest: (state) => {
+            state.loading = true;
+            state.error = null;
+        },
+        loginSuccess: (state, action) => {
             state.user = action.payload;
             state.loading = false;
             state.error = null;
+            console.log('Persisted state:', state);
+        },
+        loginFailure: (state, action) => {
+            state.user = null;
+            state.error = action.payload;
         },
         logout: (state) => {
             state.user = null;
+            state.error = null;
+            state.loading = false;
+        },
+        clearError: (state) => {
             state.error = null;
             state.loading = false;
         }
     }
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, loginFailure, loginRequest, logout, clearError } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,8 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
+interface User {
+    id: string,
+    role: string
+}
+interface AuthState {
+    regUser: User | null;
+    loading: boolean;
+    error: string | null;
+}
+
+const initialState: AuthState = {
     loading: false,
-    user: null,
+    regUser: null,
     error: null
 }
 
@@ -16,7 +26,7 @@ const registrationSlice = createSlice({
         },
         registrationSuccess: (state, action) => {
             state.loading = false;
-            state.user = action.payload;
+            state.regUser = action.payload
             state.error = null;
         },
         registrationFailure: (state, action) => {

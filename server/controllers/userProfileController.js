@@ -47,7 +47,7 @@ export const uploadProfileImage = async function (req, res) {
 
 export const logout = async function (req, res) {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const user = await User.findByIdAndUpdate(
       userId,
       { $set: { refreshToken: '' } },

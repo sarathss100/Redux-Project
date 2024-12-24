@@ -2,11 +2,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import User from '../models/User.js';
 import { validationResult } from 'express-validator';
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from '../utils/jwt.js';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 
 dotenv.config();
 
@@ -48,22 +44,19 @@ export const registerUser = async function (req, res) {
     } else {
       const accessToken = generateAccessToken(savedUserData);
       const refreshToken = generateRefreshToken(savedUserData);
-      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-      await User.updateOne(
-        { _id: user._id },
-        { $set: { refreshToken: hashedRefreshToken } }
-      );
+      // const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+      await User.updateOne({ _id: user._id }, { $set: { refreshToken } });
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: `Strict`,
       });
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: `Strict`,
-      });
-      res.status(201).json({ user });
+      // res.cookie('refreshToken', refreshToken, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === 'production',
+      //   sameSite: `Strict`,
+      // });
+      res.status(201).json({ user: { id: user.id, role: user.role } });
     }
   } catch (error) {
     res
@@ -86,22 +79,20 @@ export const loginUser = async function (req, res) {
     }
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await User.updateOne(
-      { _id: user._id },
-      { $set: { refreshToken: hashedRefreshToken } }
-    );
+    // const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await User.updateOne({ _id: user._id }, { $set: { refreshToken } });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: `Strict`,
     });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: `Strict`,
-    });
-    res.status(201).json({ accessToken, refreshToken });
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: `Strict`,
+    // });
+
+    res.status(201).json({ user: { id: user.id, role: user.role } });
   } catch (error) {
     res
       .status(500)
@@ -109,33 +100,33 @@ export const loginUser = async function (req, res) {
   }
 };
 
-export const refreshAccessToken = async function (req, res) {
-  const refreshToken = req.cookies['refreshToken'];
-  if (!refreshToken) {
-    return res.status(401).json({ message: `No token, authorization denied` });
-  }
+// export const refreshAccessToken = async function (req, res) {
+//   const refreshToken = req.cookies['refreshToken'];
+//   if (!refreshToken) {
+//     return res.status(401).json({ message: `No token, authorization denied` });
+//   }
 
-  try {
-    const decoded = verifyRefreshToken(refreshToken);
-    if (!decoded) {
-      throw new Error();
-    }
+//   try {
+//     const decoded = verifyRefreshToken(refreshToken);
+//     if (!decoded) {
+//       throw new Error();
+//     }
 
-    const user = await User.findOne({ _id: decoded.userId });
-    if (!user) {
-      return res.status(403).json({
-        message: `Refresh token is not valid or has been tampered with`,
-      });
-    }
-    const newAccessToken = generateAccessToken(user);
-    res.cookie('accessToken', newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: `Strict`,
-    });
+//     const user = await User.findOne({ _id: decoded.userId });
+//     if (!user) {
+//       return res.status(403).json({
+//         message: `Refresh token is not valid or has been tampered with`,
+//       });
+//     }
+//     const newAccessToken = generateAccessToken(user);
+//     res.cookie('accessToken', newAccessToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: `Strict`,
+//     });
 
-    res.status(200).json({ accessToken: newAccessToken });
-  } catch (error) {
-    res.status(401).json({ message: `Token is not valid or expired` });
-  }
-};
+//     res.status(200).json({ accessToken: newAccessToken });
+//   } catch (error) {
+//     res.status(401).json({ message: `Token is not valid or expired` });
+//   }
+// };

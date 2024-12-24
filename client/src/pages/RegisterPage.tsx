@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { registerUser } from '../redux/actions/registrationActions';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ const RegisterPage = function () {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const updateUsername = function(event) {
@@ -27,11 +26,12 @@ const RegisterPage = function () {
         return setPassword(newPassword);
     };
 
-    const { loading, error, user } = useSelector((state) => state.registration);
+    const { loading, error, regUser } = useSelector((state) => state.registration);
+    const { user } = useSelector((state) => state.auth);
 
     const handleRegister = function(event) {
         event.preventDefault();
-        dispatch(registerUser(username, email, password));
+        registerUser(username, email, password);
     }
 
     useEffect(() => {
@@ -47,7 +47,7 @@ const RegisterPage = function () {
                 <input type='text' value={username} placeholder='Username' onChange={updateUsername} required />
                 <input type='email' value={email}  placeholder='Email' onChange={updateEmail} required />
                 <input type='password' value={password} placeholder='Password' onChange={updatePassword} required />
-                <button type='submit' disabled={loading}>Register</button>
+                <button type='submit'>Register</button>
             </form>
 
             {loading && <p>Registering...</p>}
