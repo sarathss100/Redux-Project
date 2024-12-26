@@ -5,6 +5,7 @@ import homePage from '../controllers/homeController.js';
 import {
   logout,
   profilePage,
+  profileImage,
   uploadProfileImage,
   changePassword,
 } from '../controllers/userProfileController.js';
@@ -29,6 +30,7 @@ router.get('/', homePage);
 /***** User Profile Management Routes *****/
 
 router.get('/profile', profilePage);
+router.get('/profile/image', profileImage);
 router.post(
   '/profile/upload-image',
   upload.single('profileImage'),

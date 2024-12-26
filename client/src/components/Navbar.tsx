@@ -20,14 +20,16 @@ const Navbar = function() {
     }
 
     return (
-        <nav>
-            <ul>
-                <li>
-                    <Link to='/'>Home</Link>
-                    <Link to='/profile'>Profile</Link>
-                    <button onClick={handleLogout}>Logout</button>
+        <nav className="bg-white shadow">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+            <ul className="flex items-center space-x-8">
+                <li className="flex items-center space-x-8">
+                    <Link to='/' className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
+                    <Link to='/profile' className="text-gray-700 hover:text-blue-600 font-medium">Profile</Link>
+                    <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">Logout</button>
                 </li>
             </ul>
+            </div>
         </nav>
     )
 };

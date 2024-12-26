@@ -5,13 +5,23 @@ import bcrypt from 'bcryptjs';
 dotenv.config();
 
 export const profilePage = async function (req, res) {
-  const userId = req.user.id;
+  const userId = req.user.userId;
   const user = await User.findOne({ _id: userId });
-  res.status(200).json(user);
+  const { email, username, profileImage } = user;
+  res.status(200).json({ username, email, profileImage });
+};
+
+export const profileImage = async function (req, res) {
+  const userId = req.user.userId;
+  const user = await User.findOne({ _id: userId });
+  const profileImage = user.profileImage;
+  if (profileImage) {
+    return res.status(200).json({ profileImage });
+  }
 };
 
 export const uploadProfileImage = async function (req, res) {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   if (!req.file) {
     return res.status(400).json({ message: `No file uploaded` });
@@ -19,15 +29,29 @@ export const uploadProfileImage = async function (req, res) {
 
   try {
     const profileImageBuffer = req.file.buffer;
+    const contentType = req.file.mimetype;
+
+    // Validate content type
+    if (!['image/jpeg', 'image/png'].includes(contentType)) {
+      return res.status(400).json({
+        message: 'Invalid image type. Only JPEG and PNG are allowed.',
+      });
+    }
 
     if (!profileImageBuffer) {
       return res
         .status(400)
         .json({ message: `Failed to convert image to buffer` });
     }
+
+    // Convert the image buffer to base64
+    const base64Image = profileImageBuffer.toString('base64');
+    const base64ImageUrl = `data:${contentType};base64,${base64Image}`;
+
+    // Save the profile image in the database with the correct structure
     const user = await User.findByIdAndUpdate(
       userId,
-      { $set: { profileImage: profileImageBuffer } },
+      { $set: { profileImage: base64ImageUrl } },
       { new: true }
     );
 
@@ -35,9 +59,10 @@ export const uploadProfileImage = async function (req, res) {
       return res.status(404).json({ message: `User not found` });
     }
 
-    res
-      .status(200)
-      .json({ message: `Profile image uploaded successfully`, user });
+    res.status(200).json({
+      message: `Profile image uploaded successfully`,
+      profileImage: base64ImageUrl,
+    });
   } catch (error) {
     res
       .status(500)
@@ -77,17 +102,20 @@ export const logout = async function (req, res) {
 };
 
 export const changePassword = async function (req, res) {
-  const { newPassword, existingPassword } = req.body;
-  const userId = req.user.id;
+  const { newPassword, currentPassword } = req.body;
+  const userId = req.user.userId;
+
   if (!userId) {
     return res.status(404).json({ message: `UserId not found` });
   }
   try {
     const user = await User.findOne({ _id: userId });
+
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }
-    const isMatch = await bcrypt.compare(existingPassword, user.password);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
     if (!isMatch) {
       return res.status(400).json({ message: `Invalid Credentials` });
     }

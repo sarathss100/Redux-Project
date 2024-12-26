@@ -38,18 +38,57 @@ const LoginPage = function() {
     }, [user, navigate]);
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleRegister}>
-                <input type='email' value={email}  placeholder='Email' onChange={updateEmail} required />
-                <input type='password' value={password} placeholder='Password' onChange={updatePassword} required />
-                <button type='submit'>Login</button>
-            </form>
+ <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+   <div className="max-w-md w-full bg-white rounded-lg shadow p-8">
+     <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+       Login
+     </h2>
+     
+     <form onSubmit={handleRegister} className="space-y-6">
+       <div>
+         <input 
+           type="email"
+           value={email}
+           placeholder="Email"
+           onChange={updateEmail}
+           required
+           className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+         />
+       </div>
 
-            {loading && <p>SignIn...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-        </div>
-    )
+       <div>
+         <input 
+           type="password"
+           value={password}
+           placeholder="Password" 
+           onChange={updatePassword}
+           required
+           className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+         />
+       </div>
+
+       <button 
+         type="submit"
+         className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors font-medium"
+       >
+         Login
+       </button>
+     </form>
+
+     {loading && (
+       <p className="mt-4 text-center text-gray-600">
+         SignIn...
+       </p>
+     )}
+     
+     {error && (
+       <p className="mt-4 text-center text-red-500">
+         {error}
+       </p>
+     )}
+   </div>
+ </div>
+);
 };
 
 export default LoginPage;
