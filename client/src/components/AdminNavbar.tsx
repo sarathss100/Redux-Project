@@ -4,7 +4,7 @@ import { persistor } from '../redux/store/store';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-const Navbar = function() {
+const AdminNavbar = function () {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -24,8 +24,8 @@ const Navbar = function() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
             <ul className="flex items-center space-x-8">
                 <li className="flex items-center space-x-8">
-                    <Link to='/' className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
-                    <Link to='/profile' className="text-gray-700 hover:text-blue-600 font-medium">Profile</Link>
+                    <Link to='/admin/dashboard' className="text-gray-700 hover:text-blue-600 font-medium">Admin Dashboard</Link>
+                    <Link to='/admin/usermanagement' className="text-gray-700 hover:text-blue-600 font-medium">User Management</Link>
                     <button onClick={handleLogout} className="text-red-600 hover:text-red-700 font-medium">Logout</button>
                 </li>
             </ul>
@@ -34,4 +34,4 @@ const Navbar = function() {
     )
 };
 
-export default Navbar;
+export default AdminNavbar;

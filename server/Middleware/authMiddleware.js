@@ -1,7 +1,7 @@
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 import { verifyAccessToken, verifyRefreshToken } from '../utils/jwt.js';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -15,6 +15,7 @@ export const verifyToken = async function (req, res, next) {
   const decoded = jwt.decode(accessToken);
   const userId = decoded.userId;
   req.user = decoded;
+
   if (!userId) {
     return res
       .status(401)
@@ -24,15 +25,19 @@ export const verifyToken = async function (req, res, next) {
   try {
     const user = await User.findOne({ _id: userId });
     const isValidToken = verifyAccessToken(accessToken);
+
     if (!isValidToken) {
       const isRefreshTokenVerified = verifyRefreshToken(user.refreshToken);
+
       if (isRefreshTokenVerified) {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+
         await User.findByIdAndUpdate(
           { _id: userId },
           { $set: { refreshToken } }
         );
+
         res.cookie('accessToken', accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',

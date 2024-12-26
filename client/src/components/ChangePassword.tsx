@@ -8,13 +8,11 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validation
     if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
-    // Handle password change logic (send data to the backend)
     onSubmit(currentPassword, newPassword);
   };
 

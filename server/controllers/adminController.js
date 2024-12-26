@@ -1,47 +1,24 @@
 import { validationResult } from 'express-validator';
-import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
-
-export const changeRole = async function (req, res) {
-  const { role } = req.body;
-
-  if (role !== 'admin' && role !== 'user') {
-    return res.status(400).json({ message: `Invalid role.` });
-  }
-
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { role },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: `User not found` });
-    }
-    res.status(200).json({ message: `User role updated successfully`, user });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: `Internal Server Error : ${error.message}` });
-  }
-};
+import bcrypt from 'bcryptjs';
 
 export const createUser = async function (req, res) {
   const { username, email, password, role } = req.body;
-
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
     const isUserExist = await User.findOne({ email });
+
     if (isUserExist) {
       return res.status(400).json({ message: `User already exists` });
     }
 
     const isUserNameExist = await User.findOne({ username });
+
     if (isUserNameExist) {
       return res.status(400).json({ message: `Username already exists` });
     }
@@ -56,6 +33,7 @@ export const createUser = async function (req, res) {
     });
 
     const savedUserData = await user.save();
+
     if (!savedUserData) {
       return res.status(400).json({ message: `Failed to update on database` });
     } else {
@@ -70,10 +48,11 @@ export const createUser = async function (req, res) {
 
 export const editUser = async function (req, res) {
   const { id } = req.params;
-  const { username, email, password, role } = req.body;
+  const { username, email, password } = req.body;
 
   try {
     const user = await User.findById(id);
+
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }
@@ -81,13 +60,17 @@ export const editUser = async function (req, res) {
     if (username) user.username = username;
     if (email) user.email = email;
     if (password) user.password = await bcrypt.hash(password, 10);
-    if (role) user.role = role;
 
-    const updatedUser = await user.save();
+    const updateFields = {
+      username: user.username,
+      password: user.password,
+    };
 
-    res
-      .status(200)
-      .json({ message: 'User updated successfully', user: updatedUser });
+    const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
+
+    res.status(201).json({ message: 'User updated successfully' });
   } catch (error) {
     res
       .status(500)
@@ -119,12 +102,11 @@ export const deleteUser = async function (req, res) {
 
 export const searchUsers = async function (req, res) {
   const { searchQuery } = req.query;
+  let searchCriteria = {};
 
   if (!searchQuery || searchQuery.trim().length === 0) {
     return res.status(400).json({ error: `Search query is required` });
   }
-
-  let searchCriteria = {};
 
   const isEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
     searchQuery
@@ -141,13 +123,12 @@ export const searchUsers = async function (req, res) {
   }
 
   try {
-    console.log(searchCriteria);
     const users = await User.find({ ...searchCriteria, isDeleted: false });
+
     if (users.length === 0) {
-      return res
-        .status(404)
-        .json({ message: `No users found matching the search criteria` });
+      return res.status(404).json({ users });
     }
+
     res.status(200).json({ users });
   } catch (error) {
     res

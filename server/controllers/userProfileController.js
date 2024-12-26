@@ -1,14 +1,13 @@
 import User from '../models/User.js';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-
 dotenv.config();
 
 export const profilePage = async function (req, res) {
   const userId = req.user.userId;
   const user = await User.findOne({ _id: userId });
-  const { email, username, profileImage } = user;
-  res.status(200).json({ username, email, profileImage });
+  const { email, role, username, profileImage } = user;\
+  res.status(200).json({ username, role, id: userId, email, profileImage });
 };
 
 export const profileImage = async function (req, res) {
@@ -31,7 +30,6 @@ export const uploadProfileImage = async function (req, res) {
     const profileImageBuffer = req.file.buffer;
     const contentType = req.file.mimetype;
 
-    // Validate content type
     if (!['image/jpeg', 'image/png'].includes(contentType)) {
       return res.status(400).json({
         message: 'Invalid image type. Only JPEG and PNG are allowed.',
@@ -44,11 +42,9 @@ export const uploadProfileImage = async function (req, res) {
         .json({ message: `Failed to convert image to buffer` });
     }
 
-    // Convert the image buffer to base64
     const base64Image = profileImageBuffer.toString('base64');
     const base64ImageUrl = `data:${contentType};base64,${base64Image}`;
 
-    // Save the profile image in the database with the correct structure
     const user = await User.findByIdAndUpdate(
       userId,
       { $set: { profileImage: base64ImageUrl } },
@@ -108,26 +104,31 @@ export const changePassword = async function (req, res) {
   if (!userId) {
     return res.status(404).json({ message: `UserId not found` });
   }
+
   try {
     const user = await User.findOne({ _id: userId });
 
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }
+
     const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
       return res.status(400).json({ message: `Invalid Credentials` });
     }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
       { $set: { password: hashedPassword } },
       { new: true }
     );
+
     if (!updatedUser) {
       return res.status(404).json({ message: `Failed to update passowrd` });
     }
+    
     return res
       .status(200)
       .json({ message: `Password updated successfully`, updatedUser });

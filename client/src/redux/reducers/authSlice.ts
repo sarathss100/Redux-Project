@@ -28,7 +28,6 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.loading = false;
             state.error = null;
-            console.log('Persisted state:', state);
         },
         loginFailure: (state, action) => {
             state.user = null;

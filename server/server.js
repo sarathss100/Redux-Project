@@ -1,12 +1,11 @@
-import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import express from 'express';
 import connectDB from './config/db.js';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { verifyToken } from './Middleware/authMiddleware.js';
-
 dotenv.config();
 
 const app = express();
@@ -27,7 +26,7 @@ app.use('/auth', authRoutes);
 app.use('/', verifyToken, userRoutes);
 
 const PORT = process.env.PORT || 3000;
-7688;
+
 app.listen(PORT, (error) => {
   if (error) {
     console.log(`Server failed to start on port${PORT}: `, error);

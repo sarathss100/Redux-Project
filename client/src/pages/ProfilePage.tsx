@@ -3,21 +3,19 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import ChangePasswordModal from "../components/ChangePassword";
 
-const ProfilePage = function() {
-    const [user, setUser] = useState({
-        username: 'test',
-        email: 'test',
-        profileImage: 'https://cdn-icons-png.flaticon.com/128/1144/1144760.png' // Default image
-    });
+const ProfilePage = function () {
+  const [user, setUser] = useState({
+    username: 'test',
+    email: 'test',
+    profileImage: 'https://cdn-icons-png.flaticon.com/128/1144/1144760.png'
+  });
 
-     const [selectedImage, setSelectedImage] = useState<File | null>(null);
-     const [isModalOpen, setIsModalOpen] = useState(false);
-
-     const openModal = () => setIsModalOpen(true);
-     const closeModal = () => setIsModalOpen(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const handlePasswordChange = async (currentPassword, newPassword) => {
-    console.log(currentPassword, newPassword);
     try {
       const response = await axios.post("http://localhost:3000/profile/change-password", {
         currentPassword,
@@ -25,51 +23,45 @@ const ProfilePage = function() {
       },
       { withCredentials: true }
     );
-      console.log(response.data);
-      alert("Password changed successfully");
       closeModal();
     } catch (error) {
       console.error("Error changing password:", error);
-      alert("Failed to change password. Please try again.");
     }
   };
 
-    useEffect(() => {
-        (async function() {
-            try {
-                const response = await axios.get('http://localhost:3000/profile', { withCredentials: true });
+  useEffect(() => {
+    (async function() {
+      try {
+        const response = await axios.get('http://localhost:3000/profile', { withCredentials: true });
+          if (response && response.data) {
+            setUser((prevState) => {
+              prevState = {
+                username: response.data.username || prevState.username,
+                email: response.data.email || prevState.email,
+                profileImage: response.data.profileImage || prevState.profileImage
+              }
+             return prevState;
+            })
+          }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }})();
+  }, []);
 
-                if (response && response.data) {
-                    setUser((prevState) => {
-                        prevState = {
-                            username: response.data.username || prevState.username,
-                            email: response.data.email || prevState.email,
-                            profileImage: response.data.profileImage || prevState.profileImage
-                        }
-                        return prevState;
-                    })
-                }
-            } catch (error) {
-                console.error("Error fetching profile data:", error);
-            }
-        })();
-    }, []);
-
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files ? event.target.files[0] : null;
-        if (file) {
-            setSelectedImage(file);
-            // Convert the file to base64
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUser((prevState) => ({
-                    ...prevState,
-                    profileImage: reader.result as string, // Set the new image as base64 string
-                }));
-            };
-            reader.readAsDataURL(file); // Convert the image to base64
-        }
-    };
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUser((prevState) => ({
+          ...prevState,
+          profileImage: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file); 
+    }
+  };
 
     const handleImageUpload = async () => {
         if (selectedImage) {
@@ -85,10 +77,9 @@ const ProfilePage = function() {
                 });
 
                 if (response.data && response.data.profileImage) {
-                    // Update the state with the newly uploaded image URL
                     setUser((prevState) => ({
                         ...prevState,
-                        profileImage: response.data.profileImage, // assuming response contains the image URL
+                        profileImage: response.data.profileImage,
                     }));
                 }
             } catch (error) {
